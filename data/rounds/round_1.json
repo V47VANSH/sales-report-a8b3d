@@ -1,0 +1,12 @@
+{
+  "round": 1,
+  "brief": "Create a single-page site that processes an attached CSV file named 'sales.csv'. Calculate the sum of the 'sales' column and display the total inside an HTML element with the id '#total-sales'. The page title must be 'Sales Summary'.",
+  "checks": [
+    "Page title is 'Sales Summary'",
+    "Page contains an element with id '#total-sales'",
+    "The text content of '#total-sales' is '650.75'"
+  ],
+  "attachments": {
+    "sales.csv": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
+  }
+}
