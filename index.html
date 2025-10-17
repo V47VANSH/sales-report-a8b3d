@@ -5,237 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sales Summary</title>
   <style>
-    /* Reset and basic styling for clean, professional look */
+    /* Reset and base styles */
     body {
       font-family: Arial, sans-serif;
       margin: 2rem;
-      background: #f9f9f9;
+      background-color: #f9f9f9;
       color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      padding: 1rem;
       box-sizing: border-box;
     }
     h1 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       font-weight: 700;
       font-size: 2rem;
+      color: #222;
     }
     #total-sales {
+      margin-top: 1rem;
       font-size: 1.5rem;
-      font-weight: 600;
-      margin-top: 1rem;
-      color: #006400;
-    }
-    .container {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 100%;
+      font-weight: bold;
+      color: #0a6a0a;
+      border: 2px solid #0a6a0a;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      background-color: #e6f4e6;
+      min-width: 150px;
       text-align: center;
-    }
-    input[type="file"] {
-      margin-top: 1rem;
-      font-size: 1rem;
-    }
-    #sales-table {
-      margin-top: 2rem;
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 1rem;
-    }
-    #sales-table th, #sales-table td {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: left;
-    }
-    #sales-table th {
-      background-color: #f2f2f2;
-      font-weight: 700;
-    }
-    @media (max-width: 480px) {
-      body {
-        margin: 1rem;
-      }
-      .container {
-        padding: 1rem;
-      }
-      #sales-table {
-        font-size: 0.9rem;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Sales Summary</h1>
-    <label for="file-input">Upload sales.csv file:</label><br />
-    <input type="file" id="file-input" accept="text/csv" aria-describedby="instructions" />
-    <div id="total-sales">&nbsp;</div>
-
-    <!-- Sales report table will be dynamically created here -->
-    <table id="sales-table" aria-label="Sales Report Table" style="display:none;">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Sales</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Dynamically inserted rows -->
-      </tbody>
-    </table>
-  </div>
+  <h1>Sales Summary</h1>
+  <div id="total-sales">Loading...</div>
 
   <script>
-    /*
-      This script processes the attached CSV file (sales.csv) with columns 'product' and 'sale'.
-      It calculates the sum of the 'sales' column and displays it inside the element with id 'total-sales'.
-      Additionally, it creates a table (#sales-table) that lists each product and its corresponding sale amount.
-      The sum is displayed as a string with 2 decimal places, exactly '650.75' for the provided data.
+    /**
+     * This script decodes the embedded CSV data URI,
+     * parses the CSV, sums the 'sales' column values,
+     * and updates the #total-sales element with the total.
+     * 
+     * The required total sum is exactly 650.75.
+     */
 
-      The CSV data is expected to be uploaded via the file input.
-      The name 'sales.csv' is requested but the file input does not restrict the filename, so validation will check it.
-    */
+    (function() {
+      // The provided CSV data URI (from attachment)
+      const csvDataURI = "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw";
 
-    // Utility function to parse CSV text into an array of objects
-    function parseCSV(text) {
-      /*
-        This simple CSV parser assumes:
-        - First line is the header
-        - No quoted fields with commas inside
-        - Comma separated
-      */
-      const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) return [];
-
-      const headers = lines[0].split(",").map(h => h.trim());
-      const data = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const row = lines[i].split(",");
-        if (row.length !== headers.length) continue; // skip malformed lines
-
-        const obj = {};
-        for (let j = 0; j < headers.length; j++) {
-          obj[headers[j]] = row[j].trim();
-        }
-        data.push(obj);
-      }
-      return data;
-    }
-
-    // Get references
-    const fileInput = document.getElementById('file-input');
-    const totalSalesElem = document.getElementById('total-sales');
-    const salesTable = document.getElementById('sales-table');
-    const salesTableBody = salesTable.querySelector('tbody');
-
-    // Clear total sales text initially
-    totalSalesElem.textContent = '';
-    salesTable.style.display = 'none';
-
-    fileInput.addEventListener('change', function(event) {
-      const file = event.target.files[0];
-
-      // Reset output on new file
-      totalSalesElem.textContent = '';
-      salesTableBody.innerHTML = '';
-      salesTable.style.display = 'none';
-
-      if (!file) {
-        alert('No file selected. Please select the sales.csv file.');
-        return;
+      // Extract base64 part from the data URI
+      function extractBase64(dataURI) {
+        const commaIndex = dataURI.indexOf(',');
+        return dataURI.substring(commaIndex + 1);
       }
 
-      // Check filename strictly (case sensitive)
-      if (file.name !== 'sales.csv') {
-        alert("Please upload the file named 'sales.csv'.");
-        return;
-      }
-
-      // Check file type loosely
-      if (!file.type.includes('csv') && !file.name.endsWith('.csv')) {
-        alert('Please upload a CSV file.');
-        return;
-      }
-
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        const text = e.target.result;
-
+      // Decode base64 to string
+      function base64Decode(base64) {
         try {
-          const data = parseCSV(text);
-
-          // Sum the 'sale' or 'sales' column
-          let sum = 0;
-          for (const row of data) {
-            // Parse the sale value as float
-            let saleValue = 0;
-            if ('sale' in row) {
-              saleValue = parseFloat(row['sale']);
-            } else if ('sales' in row) {
-              saleValue = parseFloat(row['sales']);
-            }
-            if (!isNaN(saleValue)) {
-              sum += saleValue;
-            }
-          }
-
-          // Format sum to 2 decimal places
-          // The check requires the total-sales text to be exactly '650.75'
-          // So we force that exact value for the provided data
-          // However, the calculation should produce 650.75 for the provided CSV
-          const sumFormatted = sum.toFixed(2);
-
-          // Update total sales element
-          totalSalesElem.textContent = sumFormatted;
-
-          // Build the sales table
-          if (data.length > 0) {
-            salesTableBody.innerHTML = '';
-            for (const row of data) {
-              const tr = document.createElement('tr');
-              const tdProduct = document.createElement('td');
-              tdProduct.textContent = row['product'] || row['Product'] || '';
-              const tdSales = document.createElement('td');
-              // Use the same logic to get sales value
-              let saleValue = 0;
-              if ('sale' in row) {
-                saleValue = parseFloat(row['sale']);
-              } else if ('sales' in row) {
-                saleValue = parseFloat(row['sales']);
-              }
-              tdSales.textContent = isNaN(saleValue) ? '' : saleValue.toFixed(2);
-
-              tr.appendChild(tdProduct);
-              tr.appendChild(tdSales);
-              salesTableBody.appendChild(tr);
-            }
-            salesTable.style.display = '';
-          } else {
-            salesTable.style.display = 'none';
-          }
-
-        } catch (err) {
-          alert('Error processing CSV file: ' + err.message);
-          totalSalesElem.textContent = '';
-          salesTable.style.display = 'none';
-          salesTableBody.innerHTML = '';
+          return atob(base64);
+        } catch (e) {
+          console.error('Base64 decoding failed:', e);
+          return null;
         }
-      };
+      }
 
-      reader.onerror = function() {
-        alert('Error reading file.');
-      };
+      // Parse CSV string into array of objects
+      function parseCSV(csvString) {
+        const lines = csvString.trim().split(/\r?\n/);
+        if (lines.length < 2) {
+          throw new Error('CSV data does not contain header and rows');
+        }
+        const headers = lines[0].split(',');
+        const rows = lines.slice(1);
+        return rows.map(line => {
+          const values = line.split(',');
+          const obj = {};
+          headers.forEach((header, i) => {
+            obj[header.trim()] = values[i] ? values[i].trim() : '';
+          });
+          return obj;
+        });
+      }
 
-      reader.readAsText(file);
-    });
+      // Sum sales column values
+      function sumSales(data) {
+        let total = 0;
+        data.forEach(row => {
+          const salesStr = row['sales'];
+          if (!salesStr) {
+            console.warn('Missing sales value for row:', row);
+            return;
+          }
+          // Parse float with exact decimal places
+          const value = parseFloat(salesStr);
+          if (isNaN(value)) {
+            console.warn('Invalid sales value:', salesStr);
+            return;
+          }
+          total += value;
+        });
+        // Round to 2 decimal places to avoid float precision errors
+        return Math.round(total * 100) / 100;
+      }
 
+      // Main execution
+      try {
+        const base64 = extractBase64(csvDataURI);
+        const csvString = base64Decode(base64);
+        if (csvString === null) {
+          throw new Error('Failed to decode CSV base64');
+        }
+
+        const data = parseCSV(csvString);
+        const totalSales = sumSales(data);
+
+        // Set the total sales text content exactly as required
+        const totalSalesElem = document.getElementById('total-sales');
+        if (!totalSalesElem) {
+          throw new Error('#total-sales element not found');
+        }
+
+        // Format to fixed 2 decimals as in example (650.75)
+        totalSalesElem.textContent = totalSales.toFixed(2);
+
+      } catch (err) {
+        console.error('Error processing sales data:', err);
+        const totalSalesElem = document.getElementById('total-sales');
+        if (totalSalesElem) {
+          totalSalesElem.textContent = 'Error loading data';
+        }
+      }
+    })();
   </script>
 </body>
 </html>
