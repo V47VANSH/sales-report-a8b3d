@@ -6,7 +6,12 @@
     "Page contains an element with id '#total-sales'",
     "The text content of '#total-sales' is '650.75'"
   ],
-  "attachments": {
-    "sales.csv": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
-  }
+  "attachments": [
+    {
+      "name": null,
+      "url": null,
+      "filename": "sales.csv",
+      "content": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
+    }
+  ]
 }
