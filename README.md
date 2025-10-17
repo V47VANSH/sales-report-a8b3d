@@ -3,85 +3,52 @@
 
 ## Project Overview
 
-**sales-report-a8b3d** is a web application feature update focused on enhancing the sales reporting interface. This update introduces a dynamically generated sales table that displays each product alongside its corresponding sales amount from the `sales.csv` data source. The update ensures that the total sales amount displayed in the `#total-sales` element remains accurate and consistent.
+**sales-report-a8b3d** is a simple, single-page web application designed to process an attached CSV file named `sales.csv`. The app reads the CSV, calculates the total sum of the `sales` column, and dynamically displays the result inside an HTML element with the ID `#total-sales`. The page title is set to **Sales Summary** for clear identification.
 
 ---
 
 ## Features
 
-- Dynamically generates a sales report table with the id `#sales-table`.
-- Displays product names and their respective sales amounts in a clear tabular format.
-- Includes a header row with columns: **Product** and **Sales**.
-- Reads data directly from the `sales.csv` file.
-- Maintains the accuracy of the total sales amount shown in the `#total-sales` element.
-- Responsive and clean UI integration for seamless user experience.
+- Upload and process a CSV file named `sales.csv`.
+- Parses the CSV to extract the `sales` column values.
+- Calculates and displays the total sales sum in real-time.
+- Clean, minimalistic single-page interface.
+- Page title set to **Sales Summary** for easy recognition.
 
 ---
 
 ## Setup Instructions
 
-1. **Prerequisites**  
-   Ensure you have a web server environment capable of serving static files and processing any required scripts, depending on your implementation (e.g., Node.js, Python SimpleHTTPServer).
+No additional build or server setup is required. This is a client-side, static web page.
 
-2. **Project Files**  
-   - `index.html` (or relevant HTML file containing `#sales-table` and `#total-sales` elements)  
-   - `sales.csv` (CSV file containing sales data)  
-   - Supporting JavaScript and CSS files as applicable.
-
-3. **CSV File Format**  
-   The `sales.csv` file should be structured as follows:  
-   ```
-   Product,Sales
-   Product A,1000
-   Product B,2500
-   Product C,1750
-   ```
-   
-4. **Run the Application**  
-   - Serve the project files on a local or remote web server.  
-   - Open the main HTML file in a web browser.
+1. Clone or download the project files.
+2. Ensure the `sales.csv` file is located in the same directory as the HTML file or attached appropriately for processing.
 
 ---
 
 ## Usage Guide
 
-1. **Viewing the Sales Report**  
-   Upon loading the application page, the sales data from `sales.csv` will be parsed and displayed within the table element identified by `#sales-table`.
-
-2. **Table Structure**  
-   The table contains two columns:  
-   - **Product**: The name of the product.  
-   - **Sales**: The corresponding sales amount for the product.
-
-3. **Total Sales**  
-   The element with the id `#total-sales` automatically reflects the sum of all sales amounts from the CSV data, ensuring users always see an accurate total.
+1. Open the `index.html` file in a modern web browser.
+2. The application will automatically look for the `sales.csv` file.
+3. Once the CSV is processed, the total sum of the `sales` column will be displayed inside the element with ID `#total-sales`.
+4. Confirm the page title reads **Sales Summary**.
 
 ---
 
 ## Technical Details
 
-- **Data Source:**  
-  The sales data is sourced from a CSV file named `sales.csv`.
-
-- **Table Generation:**  
-  The application reads the CSV file, parses product and sales data, and dynamically creates a table with `#sales-table` containing a header row and data rows for each product.
-
-- **Total Sales Calculation:**  
-  Sales values are summed programmatically and the result is updated in the `#total-sales` HTML element to maintain accuracy whenever the data changes.
-
-- **Technologies Used:**  
-  - HTML5  
-  - CSS3  
-  - JavaScript (vanilla or with libraries such as PapaParse for CSV parsing if needed)  
-  - Optional: Web server for serving files
+- **HTML**: Single-page interface with a designated element (`#total-sales`) to display results.
+- **JavaScript**: 
+  - Reads and parses the `sales.csv` file.
+  - Extracts the values from the `sales` column.
+  - Calculates the sum and updates the DOM in real-time.
+- **CSV Format**: Expects a CSV file with a header row including a `sales` column.
+- **Browser Compatibility**: Compatible with modern browsers supporting File API and ES6 features.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-*For questions or contributions, please contact the project maintainer or open an issue in the repository.*
+This project is licensed under the MIT License.  
+See the [LICENSE](LICENSE) file for details.
 ```
