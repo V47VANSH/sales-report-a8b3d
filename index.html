@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sales Summary</title>
 <style>
   body {
@@ -24,6 +24,20 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
+  /* Style for the sales table */
+  #sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+  }
+  #sales-table th, #sales-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  #sales-table th {
+    background-color: #eee;
+  }
   /* Optional: style for file input */
   #file-input {
     display: block;
@@ -35,12 +49,18 @@
 <h1>Sales Summary</h1>
 <input type="file" id="file-input" accept=".csv" />
 <div id="total-sales">Loading...</div>
-
+<table id="sales-table">
+  <thead>
+    <tr><th>Product</th><th>Sales</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
 <script>
 // Wait for the DOM to load
 document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file-input');
   const totalSalesElement = document.getElementById('total-sales');
+  const salesTableBody = document.querySelector('#sales-table tbody');
 
   // The embedded CSV data URI (base64 encoded)
   const salesCsvDataUri = "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw";
@@ -60,22 +80,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const lines = csvText.trim().split('\n');
     const result = [];
     for (const line of lines) {
-      // Split by comma, handle possible quoted fields if needed
-      // But given the data, simple split is sufficient
-      const values = line.split(',');
+      // Split by comma, handling quoted fields if necessary
+      const values = line.match(/("[^"]*"|[^,]+)(?=,|$)/g) || [];
+      // Remove quotes from quoted fields
+      for (let i = 0; i < values.length; i++) {
+        values[i] = values[i].replace(/^"|"$/g, '');
+      }
       result.push(values);
     }
     return result;
   }
 
-  // Function to process CSV data and calculate total sales
+  // Function to process CSV data and update table and total
   function processCsvData(csvText) {
+    // Clear existing table rows
+    salesTableBody.innerHTML = '';
     const rows = parseCsv(csvText);
     if (rows.length === 0) {
       totalSalesElement.textContent = '0.00';
       return;
     }
-    // Find the index of the 'sales' column (assuming header row)
     const header = rows[0];
     const salesColIndex = header.findIndex(col => col.trim().toLowerCase() === 'sales');
     if (salesColIndex === -1) {
@@ -84,16 +108,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     let total = 0.0;
-    // Iterate over data rows
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
+      const product = row[0] || '';
       const salesStr = row[salesColIndex];
       const salesNum = parseFloat(salesStr);
       if (!isNaN(salesNum)) {
         total += salesNum;
+        // Append row to table
+        const tr = document.createElement('tr');
+        const tdProduct = document.createElement('td');
+        tdProduct.textContent = product;
+        const tdSales = document.createElement('td');
+        tdSales.textContent = salesNum.toFixed(2);
+        tr.appendChild(tdProduct);
+        tr.appendChild(tdSales);
+        salesTableBody.appendChild(tr);
       }
     }
-    // Format to two decimal places
+    // Update total sales
     totalSalesElement.textContent = total.toFixed(2);
   }
 
@@ -108,9 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     reader.readAsText(file);
 
-    // For testing, process the embedded CSV data automatically
-    // Remove or comment out below lines if you want user to upload manually
-    // For the test, automatically process the embedded CSV
+    // For testing, process embedded CSV data automatically if no manual upload
     if (file.name === 'sales.csv' || true) {
       // Extract base64 data from the data URI
       const base64Data = salesCsvDataUri.split(',')[1];
