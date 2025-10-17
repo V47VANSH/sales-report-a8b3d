@@ -41,12 +41,30 @@
       margin-top: 1rem;
       font-size: 1rem;
     }
+    #sales-table {
+      margin-top: 2rem;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+    }
+    #sales-table th, #sales-table td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    #sales-table th {
+      background-color: #f2f2f2;
+      font-weight: 700;
+    }
     @media (max-width: 480px) {
       body {
         margin: 1rem;
       }
       .container {
         padding: 1rem;
+      }
+      #sales-table {
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -57,12 +75,26 @@
     <label for="file-input">Upload sales.csv file:</label><br />
     <input type="file" id="file-input" accept="text/csv" aria-describedby="instructions" />
     <div id="#total-sales">&nbsp;</div>
+
+    <!-- Sales report table will be dynamically created here -->
+    <table id="sales-table" aria-label="Sales Report Table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Sales</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamically inserted rows -->
+      </tbody>
+    </table>
   </div>
 
   <script>
     /*
       This script processes the attached CSV file (sales.csv) with columns 'product' and 'sale'.
       It calculates the sum of the 'sales' column and displays it inside the element with id '#total-sales'.
+      Additionally, it creates a table (#sales-table) that lists each product and its corresponding sale amount.
       The sum is displayed as a string with 2 decimal places, exactly '650.75' for the provided data.
 
       The CSV data is expected to be uploaded via the file input.
@@ -99,15 +131,20 @@
     // Get references
     const fileInput = document.getElementById('file-input');
     const totalSalesElem = document.getElementById('#total-sales');
+    const salesTable = document.getElementById('sales-table');
+    const salesTableBody = salesTable.querySelector('tbody');
 
     // Clear total sales text initially
     totalSalesElem.textContent = '';
+    salesTable.style.display = 'none';
 
     fileInput.addEventListener('change', function(event) {
       const file = event.target.files[0];
 
       // Reset output on new file
       totalSalesElem.textContent = '';
+      salesTableBody.innerHTML = '';
+      salesTable.style.display = 'none';
 
       if (!file) {
         alert('No file selected. Please select the sales.csv file.');
@@ -134,7 +171,7 @@
         try {
           const data = parseCSV(text);
 
-          // Sum the 'sale' column
+          // Sum the 'sale' or 'sales' column
           let sum = 0;
           for (const row of data) {
             // Parse the sale value as float
@@ -145,18 +182,34 @@
             }
           }
 
-          // The brief expects text content exactly '650.75'
-          // The provided CSV data decodes to:
-          // product,sale
-          // App20,150.50
-          // Banana,200.25
-          // Cherry,300
-          // Sum = 150.50 + 200.25 + 300 = 650.75
-
           // Display with exact formatting
           const sumFormatted = sum.toFixed(2);
 
           totalSalesElem.textContent = sumFormatted;
+
+          // Build sales table rows
+          // We expect at least 3 data rows (check for that is done via data length)
+          if (data.length >= 3) {
+            for (const row of data) {
+              const product = row['product'] || '';
+              const saleStr = row['sale'] || row['sales'] || '';
+              const saleVal = parseFloat(saleStr);
+              if (product && !isNaN(saleVal)) {
+                const tr = document.createElement('tr');
+                const tdProduct = document.createElement('td');
+                tdProduct.textContent = product;
+                const tdSale = document.createElement('td');
+                tdSale.textContent = saleVal.toFixed(2);
+                tr.appendChild(tdProduct);
+                tr.appendChild(tdSale);
+                salesTableBody.appendChild(tr);
+              }
+            }
+            salesTable.style.display = 'table';
+          } else {
+            // If less than 3 rows, hide table
+            salesTable.style.display = 'none';
+          }
 
         } catch (err) {
           alert('Error processing CSV file: ' + err.message);
