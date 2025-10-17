@@ -6,7 +6,12 @@
     "Table has at least 3 data rows",
     "The text content of '#total-sales' remains '650.75'"
   ],
-  "attachments": {
-    "sales.csv": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
-  }
+  "attachments": [
+    {
+      "name": null,
+      "url": null,
+      "filename": "sales.csv",
+      "content": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
+    }
+  ]
 }
