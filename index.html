@@ -5,260 +5,245 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sales Summary</title>
     <style>
-        /* Reset and base styles */
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 2rem;
-            background: #f9fafb;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .container {
-            max-width: 480px;
-            width: 100%;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 2rem;
-            box-sizing: border-box;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            font-size: 1.8rem;
-            text-align: center;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
             color: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+            color: #2c3e50;
+        }
+        main {
+            background: white;
+            padding: 2rem 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #34495e;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 0.4rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
         #total-sales {
+            margin-top: 2rem;
             font-size: 1.5rem;
             font-weight: 700;
-            text-align: center;
-            margin-top: 1.5rem;
-            padding: 0.75rem 1rem;
-            background-color: #e0f2fe;
-            border-radius: 6px;
-            color: #0369a1;
-            user-select: text;
+            color: #27ae60;
+            min-height: 1.5em;
         }
-
-        /* New styles for sales table */
-        #sales-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 2rem;
-            font-size: 1rem;
-            color: #222;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .error {
+            margin-top: 1rem;
+            color: #e74c3c;
+            font-weight: 600;
         }
-
-        #sales-table thead {
-            background-color: #0369a1;
-            color: white;
-            font-weight: 700;
-        }
-
-        #sales-table th, #sales-table td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        #sales-table tbody tr:nth-child(even) {
-            background-color: #f3f4f6;
-        }
-
         @media (max-width: 480px) {
-            body {
-                padding: 1rem;
-            }
-
-            .container {
-                padding: 1.5rem;
-            }
-
-            #sales-table th, #sales-table td {
-                padding: 0.5rem 0.75rem;
+            main {
+                padding: 1.5rem 1.5rem;
+                max-width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <header>
         <h1>Sales Summary</h1>
-        <!-- Display the calculated total sales here -->
-        <div id="total-sales">Loading...</div>
-
-        <!-- New table for sales report -->
-        <table id="sales-table" aria-label="Sales Report Table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Sales</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows will be dynamically inserted here -->
-            </tbody>
-        </table>
-    </div>
+    </header>
+    <main>
+        <label for="fileInput">Upload sales.csv file:</label>
+        <input type="file" id="fileInput" accept=".csv,text/csv" aria-describedby="fileHelp" />
+        <div id="total-sales"></div>
+        <div id="error-message" class="error" role="alert" aria-live="polite"></div>
+    </main>
 
     <script>
-        /**
-         * Parses CSV text into an array of objects
-         * Assumes first line is header
-         * Handles simple CSV without quoted commas
-         * @param {string} csvText
-         * @returns {Array<Object>}
-         */
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split(/\r?\n/);
-            if (lines.length < 2) return [];
-            const headers = lines[0].split(",").map(h => h.trim());
-            const rows = lines.slice(1);
-
-            return rows.map(line => {
-                const values = line.split(",").map(v => v.trim());
-                const obj = {};
-                headers.forEach((header, idx) => {
-                    obj[header] = values[idx];
-                });
-                return obj;
-            });
+    /**
+     * Base64 decode function for browser compatibility
+     * Uses atob internally
+     * @param {string} base64Str
+     * @returns {string} decoded string
+     */
+    function base64Decode(base64Str) {
+        try {
+            return atob(base64Str);
+        } catch (e) {
+            return null;
         }
+    }
 
-        // The given CSV file data URI from the attachment
-        const salesCsvDataUri = "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw";
-
-        /**
-         * Decode base64 data URI to string content
-         * @param {string} dataUri
-         * @returns {string}
-         */
-        function decodeBase64DataUri(dataUri) {
-            // Format: data:[<mime type>][;base64],<data>
-            const base64Index = dataUri.indexOf(';base64,');
-            if (base64Index === -1) {
-                throw new Error('Invalid base64 data URI');
+    /**
+     * Parse CSV string into array of objects
+     * Assumes first line contains headers
+     * Supports simple CSV without quoted fields
+     * @param {string} csvText
+     * @returns {Array<Object>} parsed data
+     */
+    function parseCSV(csvText) {
+        const lines = csvText.trim().split(/\r?\n/);
+        if (lines.length < 2) return [];
+        const headers = lines[0].split(",").map(h => h.trim());
+        const data = [];
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(",");
+            if (row.length !== headers.length) {
+                // Skip malformed rows
+                continue;
             }
-            const base64String = dataUri.substring(base64Index + 8);
-            try {
-                return atob(base64String);
-            } catch (e) {
-                throw new Error('Failed to decode base64 content');
+            const obj = {};
+            for (let j = 0; j < headers.length; j++) {
+                obj[headers[j]] = row[j].trim();
             }
+            data.push(obj);
+        }
+        return data;
+    }
+
+    /**
+     * Format a number to fixed 2 decimals without rounding errors
+     * @param {number} num
+     * @returns {string} formatted string
+     */
+    function formatNumber(num) {
+        return num.toFixed(2);
+    }
+
+    /**
+     * Main function to handle the file input change
+     * @param {Event} e
+     */
+    function handleFileInput(e) {
+        const file = e.target.files[0];
+        const totalSalesEl = document.getElementById('total-sales');
+        const errorEl = document.getElementById('error-message');
+
+        // Clear previous outputs
+        totalSalesEl.textContent = '';
+        errorEl.textContent = '';
+
+        if (!file) {
+            errorEl.textContent = 'No file selected.';
+            return;
         }
 
-        /**
-         * Calculate sum of the 'sales' column from parsed CSV array
-         * @param {Array<Object>} data
-         * @returns {number}
-         */
-        function calculateTotalSales(data) {
-            let total = 0;
-            data.forEach(row => {
-                // parseFloat may return NaN if invalid
-                const saleValue = parseFloat(row['sales']);
-                if (!isNaN(saleValue)) {
-                    total += saleValue;
-                }
-            });
-            return total;
+        if (file.name !== 'sales.csv') {
+            errorEl.textContent = 'Please upload the file named sales.csv.';
+            return;
         }
 
-        /**
-         * Populate the sales table with product and sales data
-         * @param {Array<Object>} data
-         */
-        function populateSalesTable(data) {
-            const tbody = document.querySelector('#sales-table tbody');
-            tbody.innerHTML = '';
+        const reader = new FileReader();
 
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-
-                // Product cell
-                const productTd = document.createElement('td');
-                productTd.textContent = row['product'] || '';
-                tr.appendChild(productTd);
-
-                // Sales cell - formatted to maintain exact decimal places if present
-                const salesRaw = row['sale'] || row['sales'] || '';
-                let salesNumber = parseFloat(salesRaw);
-                let salesText = '';
-                if (!isNaN(salesNumber)) {
-                    // Use toFixed(2) if there is a decimal fraction, else integer
-                    if (salesRaw.includes('.')) {
-                        salesText = salesNumber.toFixed(2);
-                    } else {
-                        salesText = salesNumber.toString();
-                    }
-                } else {
-                    salesText = salesRaw;
-                }
-                const salesTd = document.createElement('td');
-                salesTd.textContent = salesText;
-                tr.appendChild(salesTd);
-
-                tbody.appendChild(tr);
-            });
-        }
-
-        /**
-         * Main function to process CSV and update DOM
-         */
-        function main() {
+        reader.onload = function(event) {
             try {
-                const csvText = decodeBase64DataUri(salesCsvDataUri);
-                const parsedDataRaw = parseCSV(csvText);
+                const csvText = event.target.result;
+                // Parse CSV
+                const data = parseCSV(csvText);
 
-                // Normalize keys for safety: The CSV header is "product,sale"
-                // but the previous code expects 'sales' for calculation, so fix keys here
-                const parsedData = parsedDataRaw.map(row => {
-                    // Rename 'sale' to 'sales' for compatibility
-                    if (row.hasOwnProperty('sale') && !row.hasOwnProperty('sales')) {
-                        row['sales'] = row['sale'];
-                        delete row['sale'];
-                    }
-                    return row;
-                });
-
-                const totalSales = calculateTotalSales(parsedData);
-                const totalSalesFixed = totalSales.toFixed(2);
-
-                const totalSalesEl = document.getElementById('total-sales');
-                if (!totalSalesEl) {
-                    throw new Error("Element with id 'total-sales' not found.");
+                if (data.length === 0) {
+                    errorEl.textContent = 'CSV file is empty or malformed.';
+                    return;
                 }
 
-                // Update total sales text content exactly
-                totalSalesEl.textContent = totalSalesFixed;
+                // Sum the sales column
+                let sum = 0;
+                for (const row of data) {
+                    if (!('sales' in row)) {
+                        errorEl.textContent = "CSV file missing 'sales' column.";
+                        return;
+                    }
+                    const val = parseFloat(row.sales);
+                    if (isNaN(val)) {
+                        errorEl.textContent = "Invalid number found in 'sales' column.";
+                        return;
+                    }
+                    sum += val;
+                }
 
-                // Populate sales table
-                populateSalesTable(parsedDataRaw);
+                // Format sum to 2 decimals
+                // The brief requires the exact text content to be '650.75' (which matches the sum of given CSV values)
+                const formattedSum = formatNumber(sum);
 
+                totalSalesEl.textContent = formattedSum;
             } catch (err) {
-                const totalSalesEl = document.getElementById('total-sales');
-                if (totalSalesEl) {
-                    totalSalesEl.textContent = 'Error loading sales data';
-                }
-                console.error(err);
+                errorEl.textContent = 'Error processing the file.';
             }
+        };
+
+        reader.onerror = function() {
+            errorEl.textContent = 'Error reading the file.';
+        };
+
+        reader.readAsText(file);
+    }
+
+    // Set up event listener on input
+    document.getElementById('fileInput').addEventListener('change', handleFileInput);
+
+    // Auto-load the provided sales.csv from data URI and display total automatically on page load
+    // Per brief: The app must process the attached sales.csv file with base64 content provided.
+    // So we decode the base64 from the brief and process it immediately without user interaction.
+
+    (function autoLoadAttachedCSV() {
+        // Base64 content from the brief:
+        const base64CSV = 'cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw';
+        const csvText = base64Decode(base64CSV);
+        if (!csvText) {
+            // If decoding fails, do nothing
+            return;
         }
 
-        // Run the main function on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', main);
+        // Parse CSV
+        const data = parseCSV(csvText);
+        if (data.length === 0) {
+            return;
+        }
+
+        // Sum sales column
+        let sum = 0;
+        for (const row of data) {
+            if (!('sales' in row)) {
+                return;
+            }
+            const val = parseFloat(row.sales);
+            if (isNaN(val)) {
+                return;
+            }
+            sum += val;
+        }
+
+        // Format sum
+        const formattedSum = formatNumber(sum);
+
+        // Set total-sales text content
+        const totalSalesEl = document.getElementById('total-sales');
+        totalSalesEl.textContent = formattedSum;
+    })();
     </script>
 </body>
 </html>
