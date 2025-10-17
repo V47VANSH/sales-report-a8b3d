@@ -1,0 +1,12 @@
+{
+  "round": 2,
+  "brief": "Update the sales report. Add a table with the id '#sales-table' that displays each product and its corresponding sale amount from 'sales.csv'. The table should have a header row (Product, Sales). The '#total-sales' element must remain correct.",
+  "checks": [
+    "Page contains a table with id '#sales-table'",
+    "Table has at least 3 data rows",
+    "The text content of '#total-sales' remains '650.75'"
+  ],
+  "attachments": {
+    "sales.csv": "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw"
+  }
+}
