@@ -86,9 +86,12 @@
 
             // Function to parse CSV data
             function parseCSV(csvText) {
+                // Split into lines and parse each line splitting by comma
+                // Trim spaces
                 const lines = csvText.trim().split('\n');
                 const result = [];
                 for (let line of lines) {
+                    // We do a simple split by comma (no quoted fields expected)
                     const parts = line.split(',').map(s => s.trim());
                     result.push(parts);
                 }
@@ -136,21 +139,24 @@
 
                     // Round total to two decimals
                     const totalFormatted = totalSales.toFixed(2);
-                    // Check if total matches the expected exact value
-                    if (totalFormatted === '650.75') {
-                        document.getElementById('total-sales').textContent = totalFormatted;
-                    } else {
-                        // For safety, still display the calculated total
-                        document.getElementById('total-sales').textContent = totalFormatted;
-                    }
+                    // Strictly use the total 650.75 as per requirement (the sum matches this)
+                    // Display total sales
+                    const totalSalesEl = document.getElementById('total-sales');
+                    totalSalesEl.textContent = totalFormatted;
+
                 } catch (error) {
-                    console.error('Error processing CSV:', error);
-                    document.getElementById('total-sales').textContent = 'Error';
+                    const totalSalesEl = document.getElementById('total-sales');
+                    totalSalesEl.textContent = 'Error loading sales data';
+                    console.error(error);
                 }
             }
 
-            // Execute on page load
-            window.addEventListener('DOMContentLoaded', processCSV);
+            // Run the processing after DOM is loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', processCSV);
+            } else {
+                processCSV();
+            }
         })();
     </script>
 </body>
