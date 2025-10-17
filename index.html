@@ -42,6 +42,24 @@
       color: #007acc;
       margin-top: 1.5rem;
     }
+    #sales-table {
+      margin-top: 2rem;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+      text-align: left;
+    }
+    #sales-table th, #sales-table td {
+      border: 1px solid #ddd;
+      padding: 0.5rem 0.75rem;
+    }
+    #sales-table thead {
+      background-color: #007acc;
+      color: white;
+    }
+    #sales-table tbody tr:nth-child(odd) {
+      background-color: #f2f9ff;
+    }
   </style>
 </head>
 <body>
@@ -49,12 +67,24 @@
     <h1>Sales Summary</h1>
     <p>Total Sales:</p>
     <div id="total-sales">0.00</div>
+    <table id="sales-table" aria-label="Sales Report Table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Sales</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be inserted here dynamically -->
+      </tbody>
+    </table>
   </main>
 
   <script>
     /*
       The sales.csv content is embedded as a base64 data URI.
-      We'll decode it, parse the CSV, sum the sales column, and display the total.
+      We'll decode it, parse the CSV, sum the sales column, display the total,
+      and populate the #sales-table with product and sales data.
     */
 
     (function() {
@@ -99,6 +129,34 @@
         return data;
       }
 
+      // Populate the #sales-table tbody with rows from data
+      function populateSalesTable(data) {
+        const tbody = document.querySelector('#sales-table tbody');
+        if (!tbody) {
+          console.error('#sales-table tbody not found');
+          return;
+        }
+
+        // Clear existing rows if any
+        tbody.innerHTML = '';
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+
+          const tdProduct = document.createElement('td');
+          tdProduct.textContent = row['product'];
+          tr.appendChild(tdProduct);
+
+          const tdSales = document.createElement('td');
+          // Format sales with two decimals if possible
+          let saleVal = parseFloat(row['sale']);
+          tdSales.textContent = !isNaN(saleVal) ? saleVal.toFixed(2) : row['sale'];
+          tr.appendChild(tdSales);
+
+          tbody.appendChild(tr);
+        });
+      }
+
       // Main execution
       function main() {
         const csvText = decodeBase64DataUri(csvDataUri);
@@ -116,7 +174,7 @@
           return;
         }
 
-        // Sum the 'sales' column
+        // Sum the 'sale' column (note the CSV header 'sale', not 'sales')
         // According to the CSV:
         // App20,150.50
         // Banana,200.25
@@ -125,7 +183,7 @@
 
         let sum = 0;
         data.forEach(row => {
-          const salesStr = row['sales'];
+          const salesStr = row['sale'];
           const salesNum = parseFloat(salesStr);
           if (!isNaN(salesNum)) {
             sum += salesNum;
@@ -136,6 +194,7 @@
         const sumFormatted = sum.toFixed(2);
 
         setTotalSales(sumFormatted);
+        populateSalesTable(data);
       }
 
       // Set the text content of #total-sales
@@ -146,7 +205,7 @@
         }
       }
 
-      // Run main on DOMContentLoaded to ensure #total-sales exists
+      // Run main on DOMContentLoaded to ensure #total-sales and #sales-table exist
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', main);
       } else {
