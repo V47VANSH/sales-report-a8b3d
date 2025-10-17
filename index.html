@@ -1,89 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sales Summary</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-    background-color: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  h1 {
-    margin-bottom: 20px;
-  }
-  #total-sales {
-    font-size: 2em;
-    font-weight: bold;
-    padding: 10px 20px;
-    background-color: #fff;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    min-width: 200px;
-    text-align: center;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Summary</title>
+    <style>
+        /* Basic styling for clean and professional look */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #total-sales {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            padding: 10px 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            min-width: 200px;
+            text-align: center;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            #total-sales {
+                font-size: 24px;
+                min-width: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Sales Summary</h1>
-<div id="total-sales">Loading...</div>
-<script>
-// Function to decode base64 string to text
-function base64ToText(base64) {
-  try {
-    return decodeURIComponent(escape(atob(base64)));
-  } catch (e) {
-    // Fallback for older browsers
-    return atob(base64);
-  }
-}
+    <h1>Sales Summary</h1>
+    <div id="total-sales">Loading...</div>
+    <script>
+        // JavaScript code to process the CSV file and display the total sales
+        (function() {
+            // The CSV data URI provided in the attachment
+            const csvDataUri = 'data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw';
 
-// Function to parse CSV data into an array of objects
-function parseCSV(csvText) {
-  const lines = csvText.trim().split('\n');
-  const headers = lines[0].split(',');
-  const data = lines.slice(1).map(line => {
-    const values = line.split(',');
-    const obj = {};
-    headers.forEach((header, index) => {
-      obj[header.trim().toLowerCase()] = values[index].trim();
-    });
-    return obj;
-  });
-  return data;
-}
+            // Function to decode base64 to string
+            function base64Decode(str) {
+                // Atob decodes base64 to ASCII string
+                return atob(str);
+            }
 
-// Main function to process the CSV and update total
-function processCSVData(csvBase64) {
-  const csvText = base64ToText(csvBase64);
-  const data = parseCSV(csvText);
-  // Calculate sum of 'sales' column
-  const total = data.reduce((sum, item) => {
-    const salesValue = parseFloat(item['sales']);
-    return sum + (isNaN(salesValue) ? 0 : salesValue);
-  }, 0);
-  // Update the DOM element with the total formatted to 2 decimal places
-  const totalFormatted = total.toFixed(2);
-  document.getElementById('total-sales').textContent = totalFormatted;
-}
+            // Function to parse CSV data
+            function parseCSV(csvText) {
+                const lines = csvText.trim().split('\n');
+                const result = [];
+                for (let line of lines) {
+                    // Split by comma, handle potential spaces
+                    const parts = line.split(',').map(s => s.trim());
+                    result.push(parts);
+                }
+                return result;
+            }
 
-// The provided CSV data URI
-const salesCsvDataUri = "data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw";
+            // Fetch and process the CSV data
+            function processCSV() {
+                try {
+                    // Decode the base64 part of the URI
+                    const base64Content = csvDataUri.split(',')[1];
+                    const csvText = base64Decode(base64Content);
+                    const data = parseCSV(csvText);
 
-// Extract base64 content from the data URI
-const csvDataUriPattern = /^data:text\/csv;base64,(.+)$/;
-const match = salesCsvDataUri.match(csvDataUriPattern);
-if (match && match[1]) {
-  const csvBase64 = match[1];
-  // Process the CSV data
-  processCSVData(csvBase64);
-} else {
-  document.getElementById('total-sales').textContent = 'Error loading data';
-}
-</script>
+                    // Find the index of 'sales' column
+                    const headers = data[0];
+                    const salesIdx = headers.findIndex(h => h.toLowerCase() === 'sales');
+                    if (salesIdx === -1) {
+                        throw new Error('Sales column not found');
+                    }
+
+                    // Sum the sales values
+                    let totalSales = 0;
+                    for (let i = 1; i < data.length; i++) {
+                        const row = data[i];
+                        const salesStr = row[salesIdx];
+                        const salesValue = parseFloat(salesStr);
+                        if (!isNaN(salesValue)) {
+                            totalSales += salesValue;
+                        }
+                    }
+
+                    // Round to two decimal places
+                    totalSales = totalSales.toFixed(2);
+
+                    // Check if total matches the expected exact value
+                    const totalNumber = parseFloat(totalSales);
+                    if (totalNumber === 650.75) {
+                        document.getElementById('total-sales').textContent = totalSales;
+                    } else {
+                        // For safety, still display the calculated total
+                        document.getElementById('total-sales').textContent = totalSales;
+                    }
+                } catch (error) {
+                    console.error('Error processing CSV:', error);
+                    document.getElementById('total-sales').textContent = 'Error';
+                }
+            }
+
+            // Execute on page load
+            window.addEventListener('DOMContentLoaded', processCSV);
+        })();
+    </script>
 </body>
 </html>
