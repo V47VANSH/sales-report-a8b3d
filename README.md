@@ -3,48 +3,63 @@
 
 ## Project Overview
 
-**sales-report-a8b3d** is a simple single-page web application designed to process a CSV file named `sales.csv`. It reads the file, calculates the total sum of the values in the `sales` column, and displays the result dynamically on the page. The page title is set to **Sales Summary** to reflect its purpose clearly.
+**sales-report-a8b3d** is a web application feature enhancement focused on updating the sales report by adding a dynamic sales table. The application reads sales data from a CSV file and displays each product alongside its corresponding sale amount. It ensures the sales table is properly structured and that the total sales amount displayed remains accurate.
 
 ---
 
 ## Features
 
-- Upload and parse a CSV file (`sales.csv`) directly in the browser
-- Compute the total sum of the `sales` column accurately
-- Display the total sales figure inside an HTML element with the ID `#total-sales`
-- Minimalistic, user-friendly single-page interface
-- No backend required — runs entirely on the client side
+- **Dynamic Sales Table**: Adds a table with the ID `#sales-table` that lists each product and its sales amount.
+- **Structured Table Header**: The table includes a header row with columns `Product` and `Sales`.
+- **Accurate Total Sales**: The element with the ID `#total-sales` dynamically reflects the correct sum of all sales.
+- **CSV Integration**: Loads sales data from a `sales.csv` file.
+- **Responsive and Clear Presentation**: The sales report is easy to read and well-formatted for users.
 
 ---
 
 ## Setup Instructions
 
-No special setup or installation is required. This project is a static web page and can be run by simply opening the HTML file in a modern web browser.
+1. **Clone the repository** (if applicable):
+   ```bash
+   git clone https://your-repo-url.git
+   cd sales-report-a8b3d
+   ```
 
-If you want to host it locally or on a server:
+2. **Ensure the `sales.csv` file is present** in the root directory or the configured data folder. The CSV file should have at least the following columns:
+   - `Product`
+   - `Sales`
 
-1. Clone or download the project files.
-2. Ensure your `sales.csv` file is ready to upload.
-3. Open the `index.html` file in your browser or serve it via any static file server.
+3. **Dependencies**:  
+   If your project uses any dependencies (e.g., for CSV parsing or frontend frameworks), install them accordingly. For example, if using Node.js:
+   ```bash
+   npm install
+   ```
+
+4. **Run the application**:  
+   Follow your environment's standard procedure to launch the app (e.g., opening `index.html` in a browser, starting a local server, etc.).
 
 ---
 
 ## Usage Guide
 
-1. Open the web page in your browser.
-2. Attach or upload your `sales.csv` file containing a `sales` column.
-3. The application will process the file automatically.
-4. View the total sales amount displayed inside the element with the ID `#total-sales` on the page.
+1. **Load the application** in a web browser.
+
+2. The sales report section will automatically:
+   - Generate a table (`#sales-table`) displaying each product and its sales.
+   - Show a header row with the columns `Product` and `Sales`.
+   - Calculate and display the total sales amount in the `#total-sales` element.
+
+3. **Update `sales.csv`** whenever new sales data is available. Refresh the page to see updated results.
 
 ---
 
 ## Technical Details
 
-- **Frontend:** HTML5, CSS3, and vanilla JavaScript
-- **CSV Parsing:** Uses JavaScript's FileReader API to read the CSV file and parse data
-- **Calculation:** Extracts and sums the numeric values from the `sales` column
-- **Display:** Dynamically updates the DOM element with ID `total-sales` with the computed total
-- **Page Title:** Set dynamically or statically as "Sales Summary"
+- **Data Source**: `sales.csv` file containing product sales data.
+- **Table Generation**: The sales table is constructed dynamically by parsing the CSV file and appending rows to the table element with ID `#sales-table`.
+- **Total Sales Calculation**: The total sales value is computed by summing all individual sales amounts and updating the `#total-sales` DOM element.
+- **Front-End Technologies**: Typically HTML, CSS, and JavaScript are used to implement this feature.
+- **CSV Parsing**: Depending on implementation, CSV parsing might be handled by a JavaScript library (e.g., PapaParse) or custom parsing code.
 
 ---
 
@@ -54,5 +69,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-*Created for Round 1 of the sales-report-a8b3d project.*
+*For questions or contributions, please contact the project maintainer.*
 ```
