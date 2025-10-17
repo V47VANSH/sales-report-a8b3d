@@ -51,6 +51,34 @@
             user-select: text;
         }
 
+        /* New styles for sales table */
+        #sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            font-size: 1rem;
+            color: #222;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        #sales-table thead {
+            background-color: #0369a1;
+            color: white;
+            font-weight: 700;
+        }
+
+        #sales-table th, #sales-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #sales-table tbody tr:nth-child(even) {
+            background-color: #f3f4f6;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 1rem;
@@ -58,6 +86,10 @@
 
             .container {
                 padding: 1.5rem;
+            }
+
+            #sales-table th, #sales-table td {
+                padding: 0.5rem 0.75rem;
             }
         }
     </style>
@@ -67,6 +99,19 @@
         <h1>Sales Summary</h1>
         <!-- Display the calculated total sales here -->
         <div id="total-sales">Loading...</div>
+
+        <!-- New table for sales report -->
+        <table id="sales-table" aria-label="Sales Report Table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Sales</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -133,16 +178,63 @@
         }
 
         /**
+         * Populate the sales table with product and sales data
+         * @param {Array<Object>} data
+         */
+        function populateSalesTable(data) {
+            const tbody = document.querySelector('#sales-table tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+
+                // Product cell
+                const productTd = document.createElement('td');
+                productTd.textContent = row['product'] || '';
+                tr.appendChild(productTd);
+
+                // Sales cell - formatted to maintain exact decimal places if present
+                const salesRaw = row['sale'] || row['sales'] || '';
+                let salesNumber = parseFloat(salesRaw);
+                let salesText = '';
+                if (!isNaN(salesNumber)) {
+                    // Use toFixed(2) if there is a decimal fraction, else integer
+                    if (salesRaw.includes('.')) {
+                        salesText = salesNumber.toFixed(2);
+                    } else {
+                        salesText = salesNumber.toString();
+                    }
+                } else {
+                    salesText = salesRaw;
+                }
+                const salesTd = document.createElement('td');
+                salesTd.textContent = salesText;
+                tr.appendChild(salesTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        /**
          * Main function to process CSV and update DOM
          */
         function main() {
             try {
                 const csvText = decodeBase64DataUri(salesCsvDataUri);
-                const parsedData = parseCSV(csvText);
+                const parsedDataRaw = parseCSV(csvText);
+
+                // Normalize keys for safety: The CSV header is "product,sale"
+                // but the previous code expects 'sales' for calculation, so fix keys here
+                const parsedData = parsedDataRaw.map(row => {
+                    // Rename 'sale' to 'sales' for compatibility
+                    if (row.hasOwnProperty('sale') && !row.hasOwnProperty('sales')) {
+                        row['sales'] = row['sale'];
+                        delete row['sale'];
+                    }
+                    return row;
+                });
+
                 const totalSales = calculateTotalSales(parsedData);
-                // Fixed to exact decimal places shown in the check
-                // The required text is '650.75' exactly
-                // The CSV has sales: 150.50 + 200.25 + 300 = 650.75
                 const totalSalesFixed = totalSales.toFixed(2);
 
                 const totalSalesEl = document.getElementById('total-sales');
@@ -150,19 +242,22 @@
                     throw new Error("Element with id 'total-sales' not found.");
                 }
 
-                // Update text content exactly
+                // Update total sales text content exactly
                 totalSalesEl.textContent = totalSalesFixed;
+
+                // Populate sales table
+                populateSalesTable(parsedDataRaw);
+
             } catch (err) {
-                // On error, display a clean message
                 const totalSalesEl = document.getElementById('total-sales');
                 if (totalSalesEl) {
-                    totalSalesEl.textContent = 'Error processing data';
+                    totalSalesEl.textContent = 'Error loading sales data';
                 }
                 console.error(err);
             }
         }
 
-        // Run main on DOMContentLoaded
+        // Run the main function on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', main);
     </script>
 </body>
