@@ -3,78 +3,85 @@
 
 ## Project Description
 
-**sales-report-a8b3d** is a web application enhancement focused on updating the sales report by adding a dynamic table that displays each product alongside its corresponding sales amount. The sales data is sourced from a CSV file (`sales.csv`), and the application ensures the total sales amount remains accurate and up-to-date.
+**sales-report-a8b3d** is a web application enhancement that updates the sales report by adding a dynamic sales table. This table displays each product alongside its corresponding sale amount sourced from a `sales.csv` file. The table is implemented with the ID `#sales-table` and includes a header row with columns for **Product** and **Sales**. Additionally, the element with ID `#total-sales` maintains an accurate total of all sales.
 
 ---
 
 ## Features
 
-- Dynamically generates a sales table with product names and their sales amounts.
-- Adds a table with the ID `#sales-table` containing a header row (`Product`, `Sales`).
-- Reads sales data from `sales.csv`.
-- Maintains the accuracy of the total sales displayed in the `#total-sales` element.
-- Clean and user-friendly presentation of sales data.
+- Parses `sales.csv` to extract product names and sales amounts.
+- Dynamically generates a table with ID `#sales-table` displaying:
+  - Product names
+  - Corresponding sales amounts
+- Includes a header row (**Product**, **Sales**) for clarity.
+- Automatically updates and maintains the correctness of the total sales displayed in the `#total-sales` element.
+- Clean, readable, and maintainable code structure.
 
 ---
 
 ## Setup Instructions
 
-1. **Prerequisites:**
-   - A modern web browser (Chrome, Firefox, Edge, Safari).
-   - A local server environment (optional but recommended for loading CSV files due to browser security restrictions).
+This project requires a web environment capable of serving static files and reading the `sales.csv` file. Follow these steps to set up:
 
-2. **Project Files:**
-   - `index.html` (or relevant HTML file with `#sales-table` and `#total-sales` elements).
-   - `sales.csv` (CSV file containing product sales data).
-   - JavaScript and CSS files as included in the project.
+1. **Clone or download the repository** to your local machine.
 
-3. **Running Locally:**
-   - Clone or download the project repository.
-   - Ensure `sales.csv` is located in the root or appropriate directory accessible by the web app.
-   - Use a local server to serve the files:
-     - Using Python 3:  
-       ```bash
-       python -m http.server 8000
-       ```
-     - Using VSCode Live Server extension or any other static server.
-   - Open your browser and navigate to `http://localhost:8000` (or your respective port).
+2. **Ensure the `sales.csv` file** is located in the root directory or a specified accessible path.
+
+3. **Serve the application using a local web server** (recommended) to enable proper file reading. You can use one of the following:
+
+   - Using Python 3:
+     ```bash
+     python -m http.server 8000
+     ```
+   - Using Node.js (http-server):
+     ```bash
+     npx http-server
+     ```
+
+4. Open your browser and navigate to `http://localhost:8000` (or the port your server is running on) to view the application.
 
 ---
 
 ## Usage Guide
 
-1. **Viewing Sales Report:**
-   - Open the web application in your browser.
-   - The sales report table (`#sales-table`) will be automatically populated with products and their sales amounts from `sales.csv`.
-   - The total sales value displayed in the element `#total-sales` will reflect the sum of all sales accurately.
+1. **Prepare your `sales.csv` file** with the following format (no header required):
 
-2. **Updating Sales Data:**
-   - Modify the `sales.csv` file with updated product sales data.
-   - Refresh the web page to see the updated report.
+   ```
+   ProductA,1000
+   ProductB,1500.75
+   ProductC,2300
+   ```
+
+2. **Load the web application** in your browser. The sales report will:
+
+   - Display a table with ID `#sales-table` listing each product and its sales value.
+   - Show the total sales amount in the element with the ID `#total-sales`.
+
+3. **Verify the data**:
+
+   - The table's first row is the header (`Product`, `Sales`).
+   - Each subsequent row corresponds to a product and its sales from the CSV.
+   - The total sales value accurately sums all sales amounts.
 
 ---
 
 ## Technical Details
 
-- **Data Source:**  
-  Sales data is sourced from a CSV file named `sales.csv`. The CSV format is expected to have two columns: product name and sales amount.
+- **HTML Structure**:
+  - A table element with ID `#sales-table` to display sales data.
+  - An element with ID `#total-sales` showing the total sales amount.
 
-- **Table Structure:**  
-  The sales table contains a header row:
-  ```
-  | Product | Sales |
-  ```
-  followed by rows for each product and its sales amount.
+- **Data Source**:
+  - `sales.csv` file containing product names and sales amounts in CSV format.
 
-- **Total Sales Calculation:**  
-  The application computes the sum of all sales amounts and updates the `#total-sales` element accordingly to maintain accuracy.
+- **Implementation**:
+  - JavaScript reads and parses the CSV file asynchronously.
+  - Dynamically injects rows into the `#sales-table`.
+  - Calculates and updates the total sales in `#total-sales`.
+  - Sales figures are rounded or formatted appropriately for display.
 
-- **Implementation:**  
-  Likely utilizes JavaScript (or a framework) to fetch and parse CSV data, dynamically create table rows, and update the DOM elements.
-
-- **HTML IDs:**
-  - `#sales-table`: The table element displaying product sales.
-  - `#total-sales`: The element showing the aggregated total sales amount.
+- **Dependencies**:
+  - No external libraries required; uses vanilla JavaScript.
 
 ---
 
