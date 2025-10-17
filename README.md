@@ -2,50 +2,57 @@
 # sales-report-a8b3d
 
 ## Project Overview
-**sales-report-a8b3d** is a simple, single-page web application designed to process an attached CSV file named `sales.csv`. The application reads the CSV file, calculates the total sum of the values in the `sales` column, and displays the resulting total within the webpage. The page title is set to **Sales Summary** to reflect its purpose.
+
+**sales-report-a8b3d** is a simple single-page web application designed to process a CSV file named `sales.csv`. It reads the file, calculates the total sum of the values in the `sales` column, and displays the result dynamically on the page. The page title is set to **Sales Summary** to reflect its purpose clearly.
 
 ---
 
 ## Features
-- Upload and process a CSV file named `sales.csv`.
-- Parse the `sales` column to calculate the total sales amount.
-- Display the total sales sum dynamically inside the HTML element with the ID `#total-sales`.
-- Clean, minimalistic single-page interface with a descriptive title.
-- User-friendly and fast client-side processing without the need for a backend.
+
+- Upload and parse a CSV file (`sales.csv`) directly in the browser
+- Compute the total sum of the `sales` column accurately
+- Display the total sales figure inside an HTML element with the ID `#total-sales`
+- Minimalistic, user-friendly single-page interface
+- No backend required — runs entirely on the client side
 
 ---
 
 ## Setup Instructions
-No special setup is required. This project is a static web application and can be run directly in any modern web browser.
 
-To get started:
+No special setup or installation is required. This project is a static web page and can be run by simply opening the HTML file in a modern web browser.
+
+If you want to host it locally or on a server:
+
 1. Clone or download the project files.
-2. Ensure your CSV file is named `sales.csv` and follows the expected format with a `sales` column.
-3. Open the `index.html` file in a web browser.
+2. Ensure your `sales.csv` file is ready to upload.
+3. Open the `index.html` file in your browser or serve it via any static file server.
 
 ---
 
 ## Usage Guide
-1. Place your `sales.csv` file in the same directory as the web page or use the file picker if implemented.
-2. The application will automatically read and process the CSV file.
-3. The total sum of the `sales` column will be calculated and displayed inside the element with ID `total-sales`.
-4. The page title shown in the browser tab will be **Sales Summary**.
+
+1. Open the web page in your browser.
+2. Attach or upload your `sales.csv` file containing a `sales` column.
+3. The application will process the file automatically.
+4. View the total sales amount displayed inside the element with the ID `#total-sales` on the page.
 
 ---
 
 ## Technical Details
-- **Technology stack**: HTML5, JavaScript (ES6+)
-- **CSV parsing**: Implemented via JavaScript (e.g., using `FileReader` API and custom parsing or a lightweight library)
-- **DOM Manipulation**: Total sales value is injected into the element with ID `total-sales`
-- **Single-page design**: No server-side components required; all logic runs client-side
-- **CSV format assumption**: The CSV file must have a header row with a `sales` column containing numeric values.
+
+- **Frontend:** HTML5, CSS3, and vanilla JavaScript
+- **CSV Parsing:** Uses JavaScript's FileReader API to read the CSV file and parse data
+- **Calculation:** Extracts and sums the numeric values from the `sales` column
+- **Display:** Dynamically updates the DOM element with ID `total-sales` with the computed total
+- **Page Title:** Set dynamically or statically as "Sales Summary"
 
 ---
 
 ## License
+
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-*Created with care for clear sales data summarization and quick insights.*
+*Created for Round 1 of the sales-report-a8b3d project.*
 ```
