@@ -1,170 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sales Summary</title>
   <style>
+    /* Basic Reset */
     html, body {
-      height: 100%;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f7f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7f8fa;
       color: #222;
+      min-height: 100vh;
     }
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      justify-content: center;
-      align-items: center;
     }
     .container {
+      max-width: 400px;
+      margin: 60px auto 0 auto;
       background: #fff;
-      padding: 2rem 2.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(80,100,120,0.11);
-      text-align: center;
-      min-width: 260px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.05);
+      padding: 32px 24px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
-      font-size: 2.1rem;
-      margin-bottom: 1.2rem;
-      letter-spacing: 0.01em;
+      font-size: 2rem;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
       font-weight: 600;
+      color: #3949ab;
     }
-    .label {
-      font-size: 1.05rem;
-      color: #6a7680;
-      margin-bottom: 0.5rem;
-      display: block;
-      font-weight: 500;
+    .summary-row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      font-size: 1.18rem;
     }
     #total-sales {
+      font-weight: 700;
       font-size: 2.2rem;
-      font-weight: bold;
-      color: #2878d9;
-      margin-top: 0.3rem;
-      letter-spacing: -1px;
+      color: #2196f3;
+      margin-top: 12px;
+      letter-spacing: 1px;
+      text-align: right;
     }
-    #sales-table {
-      margin: 2.5rem auto 0 auto;
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 430px;
-      background: #f8fafc;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 5px rgba(80,100,120,0.07);
-    }
-    #sales-table th, #sales-table td {
-      padding: 0.68em 1.1em;
-      text-align: left;
-    }
-    #sales-table th {
-      background: #e9eef4;
-      font-weight: 600;
-      color: #28539d;
-      border-bottom: 2px solid #dee5ed;
-    }
-    #sales-table td {
-      border-bottom: 1px solid #eef2f6;
-      font-size: 1.02em;
-    }
-    #sales-table tr:last-child td {
-      border-bottom: none;
-    }
-    @media (max-width: 500px) {
-      .container { padding: 1.2rem 0.7rem; min-width: unset; }
-      h1 { font-size: 1.38rem; }
-      #total-sales { font-size: 1.55rem; }
-      #sales-table { font-size: 0.95em; }
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px 8px 14px 8px;
+        max-width: 97vw;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+      #total-sales {
+        font-size: 1.4rem;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="container">
-    <h1>Sales Summary</h1>
-    <span class="label">Total Sales</span>
-    <div id="total-sales">Loading...</div>
-    <table id="sales-table" style="margin-top:2.5rem; display: none;">
-      <thead>
-        <tr><th>Product</th><th>Sales</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <main>
+    <div class="container">
+      <h1>Sales Summary</h1>
+      <div class="summary-row">
+        <span>Total Sales:</span>
+        <span id="total-sales"></span>
+      </div>
+    </div>
   </main>
   <script>
-  // Base64-encoded CSV (from attachment)
-  const csvDataURI = 'data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw';
+    // Embedded base64 CSV data (from the attachment)
+    const salesCsvDataUri =
+      'data:text/csv;base64,cHJvZHVjdCxzYWxlcwpBcHAyMCwxNTAuNTAKQmFuYW5hLDIwMC4yNQpDaGVycnksMzAw';
 
-  // Function to decode base64
-  function base64Decode(dataURI) {
-    const base64 = dataURI.substring(dataURI.indexOf(',') + 1);
-    try {
-      return decodeURIComponent(escape(window.atob(base64)));
-    } catch (e) {
-      return atob(base64);
+    // Helper function to decode base64 (works in browser atob)
+    function base64ToUtf8(b64) {
+      // atob decodes base64 to binary string; decodeURIComponent(escape()) handles UTF-8
+      return decodeURIComponent(escape(window.atob(b64)));
     }
-  }
 
-  // Minimal CSV parser for two columns (no quotes, no embedded commas)
-  function parseCSV(text) {
-    const lines = text.trim().split(/\r?\n/);
-    const header = lines[0].split(',');
-    const rows = [];
-    for(let i=1; i<lines.length; ++i) {
-      const values = lines[i].split(',');
-      const row = {};
-      for(let j=0; j<header.length; ++j) {
-        row[header[j].trim()] = values[j] ? values[j].trim() : '';
+    // Parse CSV text to array of objects
+    function parseCsv(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length === 0) return [];
+      const headers = lines[0].split(',');
+      return lines.slice(1).map(line => {
+        // Handles potential commas in future, but current data is simple
+        const values = line.split(',');
+        let row = {};
+        headers.forEach((h, i) => {
+          row[h.trim()] = values[i] !== undefined ? values[i].trim() : '';
+        });
+        return row;
+      });
+    }
+
+    function formatNumber(val) {
+      // Always show two decimal places
+      return parseFloat(val).toFixed(2);
+    }
+
+    function displayTotalSales(total) {
+      // Set the text content of #total-sales exactly
+      const totalSalesElem = document.getElementById('total-sales');
+      if (totalSalesElem) {
+        totalSalesElem.textContent = formatNumber(total);
       }
-      rows.push(row);
     }
-    return rows;
-  }
 
-  // Calculate total sales
-  function calculateTotalSales(rows) {
-    let sum = 0;
-    for(const row of rows) {
-      let value = parseFloat(row['sales']);
-      if (!isNaN(value)) sum += value;
-    }
-    return sum.toFixed(2);
-  }
-
-  // Render the sales table
-  function renderSalesTable(rows) {
-    // Find the table elements
-    const table = document.getElementById('sales-table');
-    const tbody = table.querySelector('tbody');
-    tbody.innerHTML = '';
-    for (const row of rows) {
-      const tr = document.createElement('tr');
-      // Product name (from 'product' column)
-      const tdProduct = document.createElement('td');
-      tdProduct.textContent = row['product'];
-      tr.appendChild(tdProduct);
-      // Sales amount (from 'sales' column, preserving input format)
-      const tdSales = document.createElement('td');
-      tdSales.textContent = row['sales'];
-      tr.appendChild(tdSales);
-      tbody.appendChild(tr);
-    }
-    table.style.display = '';
-  }
-
-  // Main processing
-  (function() {
-    const csvText = base64Decode(csvDataURI);
-    const rows = parseCSV(csvText);
-    const total = calculateTotalSales(rows);
-    // Set text content exactly as required
-    document.getElementById('total-sales').textContent = total;
-    renderSalesTable(rows);
-  })();
+    // Main logic: decode, parse, sum
+    (function processSalesCsv() {
+      try {
+        // Extract base64 from data URI
+        const base64 = salesCsvDataUri.split(',')[1];
+        const csvText = base64ToUtf8(base64);
+        const rows = parseCsv(csvText);
+        // Sum up the sales column, treating missing/invalid as 0
+        let total = 0;
+        for (const row of rows) {
+          let sale = row['sales'] || row['Sales'];
+          // Handle both possible capitalizations just in case, but expect 'sales'
+          let num = Number(sale);
+          if (!isNaN(num)) {
+            total += num;
+          }
+        }
+        // Display the result (should be 650.75 for the provided data)
+        displayTotalSales(total);
+      } catch (err) {
+        // Error handling: show error in the total-sales element
+        const elem = document.getElementById('total-sales');
+        if (elem) {
+          elem.textContent = 'Error';
+        }
+      }
+    })();
   </script>
 </body>
 </html>
